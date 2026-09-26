@@ -1,0 +1,14 @@
+config ZMK_LED_INDICATOR
+    bool "Binary LED indicator (layer state + pointer activity)"
+    depends on DT_HAS_ZMK_LED_INDICATOR_ENABLED
+    default y
+    select GPIO
+    select INPUT
+
+if ZMK_LED_INDICATOR
+
+module = ZMK_LED_INDICATOR
+module-str = ZMK_LED_INDICATOR
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+endif # ZMK_LED_INDICATOR

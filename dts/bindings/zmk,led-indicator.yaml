@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+description: |
+  Binary LED indicator driven by ZMK layer state and pointing-device activity.
+
+compatible: "zmk,led-indicator"
+
+properties:
+  gpios:
+    type: phandle-array
+    required: true
+    description: The GPIO driving the LED. Use GPIO_ACTIVE_LOW if the LED sinks.
+
+  indicate-layer:
+    type: int
+    default: 1
+    description: Layer whose activation lights the LED.
+
+  activity-device:
+    type: phandle
+    description: |
+      Pointing device to watch for movement. Omit to disable activity blinking.
+
+  activity-hold-ms:
+    type: int
+    default: 60
+    description: How long the LED stays lit after the last motion report.
