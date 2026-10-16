@@ -2,8 +2,9 @@
  * &mtog - mouse button toggle.
  *
  * Press once: the button(s) go down and stay down. Press again: released.
- * Reports go through ZMK's own &mkp input device, so the HID state is shared
- * with normal clicks; a normal release of the same button clears the toggle.
+ * Reports go through ZMK's own &mkp input device. ZMK reference-counts mouse
+ * buttons, so while the toggle holds a button, normal clicks of that same
+ * button are absorbed (the button stays down) - only &mtog releases it.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -66,20 +67,6 @@ static int mtog_released(struct zmk_behavior_binding *binding,
     return ZMK_BEHAVIOR_OPAQUE;
 }
 
-/* a release of a toggled button from anywhere (e.g. &mkp) clears the toggle */
-static void mkp_watch_cb(struct input_event *evt, void *user_data) {
-    ARG_UNUSED(user_data);
-    if (evt->type != INPUT_EV_KEY || evt->value != 0) {
-        return;
-    }
-    int b = evt->code - INPUT_BTN_0;
-    if (b >= 0 && b < ZMK_HID_MOUSE_NUM_BUTTONS && (toggled & BIT(b))) {
-        toggled &= ~BIT(b);
-        led_indicator_set_hold(toggled != 0);
-    }
-}
-
-INPUT_CALLBACK_DEFINE(MKP_DEV, mkp_watch_cb, NULL);
 
 static const struct behavior_driver_api mtog_driver_api = {
     .binding_pressed = mtog_pressed,
