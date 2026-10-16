@@ -29,7 +29,13 @@ LOG_MODULE_REGISTER(led_indicator, CONFIG_ZMK_LED_INDICATOR_LOG_LEVEL);
 
 #define IND_LAYER        DT_PROP(LED_NODE, indicate_layer)
 #define ACTIVITY_HOLD_MS DT_PROP(LED_NODE, activity_hold_ms)
-#define BLINK_LAYER      DT_PROP(LED_NODE, blink_layer)
+#if DT_NODE_HAS_PROP(LED_NODE, blink_layers)
+static const int blink_layers[] = DT_PROP(LED_NODE, blink_layers);
+#define BLINK_LAYERS_N ARRAY_SIZE(blink_layers)
+#else
+static const int blink_layers[] = {-1};
+#define BLINK_LAYERS_N 0
+#endif
 #define BLINK_MS         120
 
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
@@ -118,8 +124,12 @@ static int led_layer_listener(const zmk_event_t *eh) {
         layer_on = ev->state;
         led_apply();
     }
-    if (BLINK_LAYER != 255 && ev->layer == BLINK_LAYER) {
-        led_blink(ev->state ? 2 : 1);   /* 2 blinks on entry, 1 on exit */
+    for (size_t k = 0; k < BLINK_LAYERS_N; k++) {
+        if (ev->layer == blink_layers[k]) {
+            /* entry: 2 blinks for the first listed layer, 3 for the second...
+               exit: always 1 */
+            led_blink(ev->state ? (uint8_t)(k + 2) : 1);
+        }
     }
     return ZMK_EV_EVENT_BUBBLE;
 }
