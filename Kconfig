@@ -12,3 +12,9 @@ module-str = ZMK_LED_INDICATOR
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 endif # ZMK_LED_INDICATOR
+
+config ZMK_BEHAVIOR_MOUSE_TOGGLE
+    bool "Mouse button toggle behavior (&mtog)"
+    depends on DT_HAS_ZMK_BEHAVIOR_MOUSE_TOGGLE_ENABLED
+    default y
+    select INPUT

@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT
+description: |
+  Mouse button toggle: each press flips the given button(s) between held and
+  released. Releasing the same button by any other means (e.g. &mkp) also
+  clears the toggle.
+
+compatible: "zmk,behavior-mouse-toggle"
+
+include: one_param.yaml

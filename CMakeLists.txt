@@ -1,5 +1,6 @@
 zephyr_library()
 
 zephyr_library_sources_ifdef(CONFIG_ZMK_LED_INDICATOR src/led_indicator.c)
+zephyr_library_sources_ifdef(CONFIG_ZMK_BEHAVIOR_MOUSE_TOGGLE src/behavior_mouse_toggle.c)
 
 zephyr_include_directories(${APPLICATION_SOURCE_DIR}/include)

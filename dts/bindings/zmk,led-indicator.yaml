@@ -24,3 +24,10 @@ properties:
     type: int
     default: 60
     description: How long the LED stays lit after the last motion report.
+
+  blink-layer:
+    type: int
+    default: 255
+    description: |
+      Layer whose activation blinks the LED twice and deactivation once
+      (e.g. a game-mode layer). 255 = none.

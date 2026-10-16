@@ -29,14 +29,49 @@ LOG_MODULE_REGISTER(led_indicator, CONFIG_ZMK_LED_INDICATOR_LOG_LEVEL);
 
 #define IND_LAYER        DT_PROP(LED_NODE, indicate_layer)
 #define ACTIVITY_HOLD_MS DT_PROP(LED_NODE, activity_hold_ms)
+#define BLINK_LAYER      DT_PROP(LED_NODE, blink_layer)
+#define BLINK_MS         120
 
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED_NODE, gpios);
 
 static bool layer_on;
 static bool activity_on;
+static bool hold_on;        /* e.g. a toggled mouse button is held */
+static uint8_t blink_steps; /* remaining half-periods of a blink pattern */
+static bool blink_lit;
 
 static void led_apply(void) {
-    gpio_pin_set_dt(&led, (layer_on || activity_on) ? 1 : 0);
+    bool lit = blink_steps ? blink_lit : (layer_on || activity_on || hold_on);
+    gpio_pin_set_dt(&led, lit ? 1 : 0);
+}
+
+/* ---- blink patterns ---------------------------------------------------- */
+
+static void blink_step_cb(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(blink_work, blink_step_cb);
+
+static void blink_step_cb(struct k_work *work) {
+    ARG_UNUSED(work);
+    if (blink_steps) {
+        blink_steps--;
+        blink_lit = !blink_lit;
+    }
+    led_apply();
+    if (blink_steps) {
+        k_work_reschedule(&blink_work, K_MSEC(BLINK_MS));
+    }
+}
+
+/* n blinks: off-gap, then n x (on, off) */
+static void led_blink(uint8_t n) {
+    blink_lit = true;           /* first step turns it off */
+    blink_steps = 1 + 2 * n;
+    k_work_reschedule(&blink_work, K_NO_WAIT);
+}
+
+void led_indicator_set_hold(bool on) {
+    hold_on = on;
+    led_apply();
 }
 
 /* ---- pointer activity ------------------------------------------------- */
@@ -76,9 +111,15 @@ INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_PHANDLE(LED_NODE, activity_device)), led_
 static int led_layer_listener(const zmk_event_t *eh) {
     const struct zmk_layer_state_changed *ev = as_zmk_layer_state_changed(eh);
 
-    if (ev != NULL && ev->layer == IND_LAYER) {
+    if (ev == NULL) {
+        return ZMK_EV_EVENT_BUBBLE;
+    }
+    if (ev->layer == IND_LAYER) {
         layer_on = ev->state;
         led_apply();
+    }
+    if (BLINK_LAYER != 255 && ev->layer == BLINK_LAYER) {
+        led_blink(ev->state ? 2 : 1);   /* 2 blinks on entry, 1 on exit */
     }
     return ZMK_EV_EVENT_BUBBLE;
 }
