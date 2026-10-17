@@ -23,3 +23,8 @@ config ZMK_MOUSE_BUTTON_WATCHDOG
     bool "Release mouse buttons left stuck after all switches are up"
     depends on ZMK_POINTING
     default y if ZMK_LED_INDICATOR
+
+config ZMK_INPUT_PROCESSOR_BLE_THROTTLE
+    bool "Limit pointer report rate over Bluetooth"
+    depends on DT_HAS_ZMK_INPUT_PROCESSOR_BLE_THROTTLE_ENABLED
+    default y

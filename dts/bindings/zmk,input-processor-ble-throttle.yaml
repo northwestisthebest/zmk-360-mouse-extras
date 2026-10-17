@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+description: |
+  Limits pointer/scroll reports to one per period while output is Bluetooth.
+  Motion is merged, not dropped. No effect over USB. Buttons are never delayed.
+
+compatible: "zmk,input-processor-ble-throttle"
+
+include: ip_zero_param.yaml
+
+properties:
+  period-ms:
+    type: int
+    default: 8
+    description: Minimum time between reports over BLE (8 ms = 125 reports/s).

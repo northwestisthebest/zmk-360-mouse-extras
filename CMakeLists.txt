@@ -3,5 +3,6 @@ zephyr_library()
 zephyr_library_sources_ifdef(CONFIG_ZMK_LED_INDICATOR src/led_indicator.c)
 zephyr_library_sources_ifdef(CONFIG_ZMK_BEHAVIOR_MOUSE_TOGGLE src/behavior_mouse_toggle.c)
 zephyr_library_sources_ifdef(CONFIG_ZMK_MOUSE_BUTTON_WATCHDOG src/button_watchdog.c)
+zephyr_library_sources_ifdef(CONFIG_ZMK_INPUT_PROCESSOR_BLE_THROTTLE src/input_processor_ble_throttle.c)
 
 zephyr_include_directories(${APPLICATION_SOURCE_DIR}/include)
