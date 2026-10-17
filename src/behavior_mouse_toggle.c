@@ -41,6 +41,9 @@ static inline void led_indicator_set_hold(bool on) { ARG_UNUSED(on); }
 
 static uint32_t toggled;    /* bitmask of buttons we are holding */
 
+/* read by the button watchdog so it leaves deliberate holds alone */
+uint32_t mtog_held_mask(void) { return toggled; }
+
 static void report_buttons(uint32_t mask, bool pressed) {
     for (int i = 0; i < ZMK_HID_MOUSE_NUM_BUTTONS; i++) {
         if (mask & BIT(i)) {

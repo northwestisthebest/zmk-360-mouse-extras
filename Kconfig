@@ -18,3 +18,8 @@ config ZMK_BEHAVIOR_MOUSE_TOGGLE
     depends on DT_HAS_ZMK_BEHAVIOR_MOUSE_TOGGLE_ENABLED
     default y
     select INPUT
+
+config ZMK_MOUSE_BUTTON_WATCHDOG
+    bool "Release mouse buttons left stuck after all switches are up"
+    depends on ZMK_POINTING
+    default y if ZMK_LED_INDICATOR
